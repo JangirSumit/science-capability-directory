@@ -192,7 +192,7 @@ export default function Album() {
         <Toolbar>
           <Avatar
             variant="rounded"
-            src={IconImage}
+            src="https://jangirsumit.github.io/science-capability-directory/static/media/science%20(3).a0a6971c.png"
             className={classes.rounded}
           ></Avatar>
           <Typography
