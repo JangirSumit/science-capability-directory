@@ -17,6 +17,11 @@ import Avatar from "@material-ui/core/Avatar";
 import IconImage from "./images/icons/science (3).png";
 import Backdrop from "@material-ui/core/Backdrop";
 import { Box, CircularProgress } from "@material-ui/core";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
 function Copyright() {
   return (
@@ -77,6 +82,21 @@ export default function Album() {
   const [data, setData] = useState([]);
   const [open, setClose] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [openModal, setOpen] = React.useState(false);
+  const [scroll, setScroll] = React.useState("paper");
+  const [dialogData, setDialogData] = useState({});
+
+  const handleClickOpen = (scrollType, data) => (event) => {
+    setOpen(true);
+    setScroll(scrollType);
+    event.preventDefault();
+    event.stopPropagation();
+    setDialogData(data);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   async function fetchData(q) {
     let search = q ? `&q=${q}` : "";
@@ -93,6 +113,16 @@ export default function Album() {
   useEffect(() => {
     fetchData(searchQuery);
   }, [searchQuery]);
+
+  const descriptionElementRef = React.useRef(null);
+  React.useEffect(() => {
+    if (openModal) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
+      }
+    }
+  }, [openModal]);
 
   return (
     <React.Fragment>
@@ -166,11 +196,15 @@ export default function Album() {
                             ? card["Overview"].substring(0, 100) + "..."
                             : card["Overview"]}
                         </Typography>
-                        Address:{" "}
+                        <b>Address</b>{" "}
                         <Box fontStyle="oblique">{card["Address"]}</Box>
                       </CardContent>
                       <CardActions>
-                        <Button size="small" color="primary">
+                        <Button
+                          size="small"
+                          color="primary"
+                          onClick={handleClickOpen("paper", card)}
+                        >
                           View more details
                         </Button>
                       </CardActions>
@@ -197,14 +231,118 @@ export default function Album() {
           color="textSecondary"
           component="p"
         >
-          Source of data :
-          <a target="_blank" href="https://www.data.qld.gov.au/">
+          Source of data:
+          <Button
+            target="_blank"
+            href="https://www.data.qld.gov.au/"
+            color="primary"
+          >
             Queensland Government
-          </a>
+          </Button>
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          align="center"
+          color="textSecondary"
+          component="p"
+        >
+          Mentor:
+          <a target="_blank" href="#"></a>
+          <Button target="_blank" href="#u/" color="primary">
+            Mr. Matti richardson
+          </Button>
         </Typography>
         <Copyright />
       </footer>
       {/* End footer */}
+
+      <Dialog
+        open={openModal}
+        onClose={handleClose}
+        scroll={scroll}
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >
+        <DialogTitle id="scroll-dialog-title">
+          {dialogData["Centre name"]}{" "}
+          {dialogData["Abbreviation"]
+            ? "(" + dialogData["Abbreviation"] + ")"
+            : ""}
+        </DialogTitle>
+        <DialogContent dividers={scroll === "paper"}>
+          <DialogContentText
+            id="scroll-dialog-description"
+            ref={descriptionElementRef}
+            tabIndex={-1}
+          >
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Parent organisation</Box>
+              {dialogData["Parent organisation"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Web link</Box>
+              <Button
+                target="_blank"
+                href={dialogData["Weblink"]}
+                color="primary"
+              >
+                {dialogData["Weblink"]}
+              </Button>
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Overview</Box>
+              {dialogData["Overview"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Centre summary</Box>
+              {dialogData["Centre summary"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Sectors</Box>
+              {dialogData["Sectors"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Strengths and capabilities</Box>
+              {dialogData["Strengths and capabilities"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Facilities and major equipment</Box>
+              {dialogData["Facilities and major equipment"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Research staff</Box>
+              {dialogData["Research staff"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Organisation type</Box>
+              {dialogData["Organisation type"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Primary centre</Box>
+              {dialogData["Primary centre"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Address</Box>
+              {dialogData["Address"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Latitude and Longitude</Box>
+              {dialogData["Latitude"]}
+              {","}
+              {dialogData["Longitude"]}
+            </Typography>
+            <Typography component="div" variant="body1">
+              <Box color="warning.main">Centre achievements</Box>
+              {dialogData["Centre achievements"]}
+            </Typography>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }
