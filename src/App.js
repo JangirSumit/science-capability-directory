@@ -277,11 +277,11 @@ export default function Album() {
                     style={{ textDecoration: "none" }}
                   >
                     <Card className={classes.card}>
-                      <CardMedia
+                      {/* <CardMedia
                         className={classes.cardMedia}
                         image={card["logo_clean"]}
                         title="Image title"
-                      />
+                      /> */}
                       <CardContent className={classes.cardContent}>
                         <Typography gutterBottom variant="h6" component="h2">
                           {card["Centre name"]}{" "}
