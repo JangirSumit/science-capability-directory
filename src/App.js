@@ -244,21 +244,21 @@ export default function Album() {
             src="https://jangirsumit.github.io/science-capability-directory/static/media/science%20(3).a0a6971c.png"
             className={classes.rounded}
           ></Avatar>
-          {/* <Typography
+          <Typography
             variant="h6"
             color="inherit"
             noWrap
             className={classes.paddingLeft}
           >
             RecourceFinda
-          </Typography> */}
+          </Typography>
         </Toolbar>
       </AppBar>
       <main>
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="md">
-            <Typography
+            {/* <Typography
               component="h1"
               variant="h4"
               align="center"
@@ -266,7 +266,7 @@ export default function Album() {
               gutterBottom
             >
               RecourceFinda
-            </Typography>
+            </Typography> */}
             <TextField
               id="search-text"
               label="Filter & Find"
