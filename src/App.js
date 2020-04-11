@@ -16,7 +16,7 @@ import TextField from "@material-ui/core/TextField";
 import Avatar from "@material-ui/core/Avatar";
 import IconImage from "./images/icons/science (3).png";
 import Backdrop from "@material-ui/core/Backdrop";
-import { Box, CircularProgress } from "@material-ui/core";
+import { Box, CircularProgress, Divider, Chip } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -74,6 +74,14 @@ const useStyles = makeStyles((theme) => ({
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: "#fff",
+  },
+  root: {
+    display: "flex",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    "& > *": {
+      margin: theme.spacing(0.5),
+    },
   },
 }));
 
@@ -199,6 +207,18 @@ export default function Album() {
                         <b>Address</b>{" "}
                         <Box fontStyle="oblique">{card["Address"]}</Box>
                       </CardContent>
+                      <Divider />
+                      <div className={classes.root}>
+                        {card["Sectors"].split(";").map((c) => (
+                          <Chip
+                            size="small"
+                            color="secondary"
+                            variant="outlined"
+                            label={c}
+                          />
+                        ))}
+                      </div>
+                      <Divider />
                       <CardActions>
                         <Button
                           size="small"
