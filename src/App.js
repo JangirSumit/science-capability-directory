@@ -94,14 +94,13 @@ export default function Album() {
   const classes = useStyles();
   const [data, setData] = useState([]);
   const [open, setClose] = useState(true);
-  const [openBackDrop, setOpenBackDrop] = React.useState(false);
   const [sectors, setSectors] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpen] = React.useState(false);
   const [scroll, setScroll] = React.useState("paper");
   const [dialogData, setDialogData] = useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const [selectedSector, setSector] = React.useState("");
 
   const handleClickOpen = (scrollType, data) => (event) => {
@@ -140,6 +139,9 @@ export default function Album() {
     );
     let data = await (await request).json();
     setData(data.result.records);
+
+    localStorage.setItem("data", JSON.stringify(data.result.records));
+
     setClose(false);
 
     data.result.records.forEach((element) => {
@@ -153,23 +155,18 @@ export default function Album() {
   }
 
   async function fetchQData(q) {
-    setData([]);
-    setOpenBackDrop(true);
-    let search = q ? `&q=${q}` : "";
-
-    let request = fetch(
-      "https://www.data.qld.gov.au/api/3/action/datastore_search?resource_id=8b9178e0-2995-42ad-8e55-37c15b4435a3" +
-        search
-    );
-    let data = await (await request).json();
-    setData(data.result.records);
     setClose(false);
-    setOpenBackDrop(false);
+    setData([]);
+    let data = JSON.parse(localStorage.getItem("data"));
+
+    let newData = data.filter((d) => d.Sectors.indexOf(q) > -1);
+
+    setData(newData);
   }
 
   useEffect(() => {
     fetchData(searchQuery);
-  }, [searchQuery, selectedSector]);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchQData(selectedSector);
@@ -323,7 +320,7 @@ export default function Album() {
                 </Grid>
               ))
             ) : (
-              <Backdrop className={classes.backdrop} open={openBackDrop}>
+              <Backdrop className={classes.backdrop} open={open}>
                 <CircularProgress color="inherit" />
               </Backdrop>
             )}
