@@ -425,7 +425,23 @@ export default function Album() {
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Facilities and major equipment</Box>
-              {dialogData["Facilities and major equipment"] || ""}
+              {dialogData["Facilities and major equipment"]
+                ? dialogData["Facilities and major equipment"]
+                    .split("\n")
+                    .map((c) =>
+                      c.length ? (
+                        <Chip
+                          size="small"
+                          color="secondary"
+                          variant="outlined"
+                          label={c}
+                          key={c}
+                        />
+                      ) : (
+                        ""
+                      )
+                    )
+                : ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Research staff</Box>
