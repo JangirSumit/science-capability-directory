@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
@@ -14,9 +14,9 @@ import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
 import TextField from "@material-ui/core/TextField";
 import Avatar from "@material-ui/core/Avatar";
-import data from "./data/data.json";
 import IconImage from "./images/icons/science (3).png";
-import { Box } from "@material-ui/core";
+import Backdrop from "@material-ui/core/Backdrop";
+import { Box, CircularProgress } from "@material-ui/core";
 
 function Copyright() {
   return (
@@ -66,16 +66,33 @@ const useStyles = makeStyles((theme) => ({
   paddingLeft: {
     paddingLeft: "5px",
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: "#fff",
+  },
 }));
-
-let count = 0;
-const cards = data.map((a) => {
-  a.itemId = ++count;
-  return a;
-});
 
 export default function Album() {
   const classes = useStyles();
+  const [data, setData] = useState([]);
+  const [open, setClose] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  async function fetchData(q) {
+    let search = q ? `&q=${q}` : "";
+
+    let request = fetch(
+      "https://www.data.qld.gov.au/api/3/action/datastore_search?resource_id=8b9178e0-2995-42ad-8e55-37c15b4435a3&limit=21" +
+        search
+    );
+    let data = await (await request).json();
+    setData(data.result.records);
+    setClose(false);
+  }
+
+  useEffect(() => {
+    fetchData(searchQuery);
+  }, [searchQuery]);
 
   return (
     <React.Fragment>
@@ -93,7 +110,7 @@ export default function Album() {
             noWrap
             className={classes.paddingLeft}
           >
-            Science Capability Directory
+            Science Directory
           </Typography>
         </Toolbar>
       </AppBar>
@@ -116,63 +133,63 @@ export default function Album() {
               variant="outlined"
               className=""
               fullWidth
+              onKeyUp={(e) => setSearchQuery(e.target.value)}
             />
-            {/* <div className={classes.heroButtons}>
-              <Grid container spacing={2} justify="center">
-                <Grid item>
-                  <Button variant="contained" color="primary">
-                    Main call to action
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button variant="outlined" color="primary">
-                    Secondary action
-                  </Button>
-                </Grid>
-              </Grid>
-            </div> */}
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
-          <Grid container spacing={4}>
-            {cards.map((card) => (
-              <Grid item key={card.itemId} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image={card["logo_clean"]}
-                    title="Image title"
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h6" component="h2">
-                      {card["Centre name"]}{" "}
-                      {card["Abbreviation"]
-                        ? "(" + card["Abbreviation"] + ")"
-                        : ""}
-                    </Typography>
-                    <Typography color="textSecondary">
-                      {card["Overview"].length > 100
-                        ? card["Overview"].substring(0, 100) + "..."
-                        : card["Overview"]}
-                    </Typography>
-                    Address: <Box fontStyle="oblique">{card["Address"]}</Box>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary">
-                      View more details
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+          <Grid container spacing={4} key="1">
+            {data.length > 0 ? (
+              data.map((card) => (
+                <Grid item key={card._id} xs={12} sm={6} md={4}>
+                  <a
+                    href={card.Weblink}
+                    target="_blank"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Card className={classes.card}>
+                      <CardMedia
+                        className={classes.cardMedia}
+                        image={card["logo_clean"]}
+                        title="Image title"
+                      />
+                      <CardContent className={classes.cardContent}>
+                        <Typography gutterBottom variant="h6" component="h2">
+                          {card["Centre name"]}{" "}
+                          {card["Abbreviation"]
+                            ? "(" + card["Abbreviation"] + ")"
+                            : ""}
+                        </Typography>
+                        <Typography color="textSecondary">
+                          {card["Overview"].length > 100
+                            ? card["Overview"].substring(0, 100) + "..."
+                            : card["Overview"]}
+                        </Typography>
+                        Address:{" "}
+                        <Box fontStyle="oblique">{card["Address"]}</Box>
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small" color="primary">
+                          View more details
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </a>
+                </Grid>
+              ))
+            ) : (
+              <Backdrop className={classes.backdrop} open={open}>
+                <CircularProgress color="inherit" />
+              </Backdrop>
+            )}
           </Grid>
         </Container>
       </main>
       {/* Footer */}
       <footer className={classes.footer}>
         <Typography variant="h6" align="center" gutterBottom>
-          Footer
+          Help Links
         </Typography>
         <Typography
           variant="subtitle1"
@@ -180,7 +197,10 @@ export default function Album() {
           color="textSecondary"
           component="p"
         >
-          Something here to give the footer a purpose!
+          Source of data :
+          <a target="_blank" href="https://www.data.qld.gov.au/">
+            Queensland Government
+          </a>
         </Typography>
         <Copyright />
       </footer>
