@@ -110,7 +110,7 @@ export default function Album() {
     let search = q ? `&q=${q}` : "";
 
     let request = fetch(
-      "https://www.data.qld.gov.au/api/3/action/datastore_search?resource_id=8b9178e0-2995-42ad-8e55-37c15b4435a3&limit=21" +
+      "https://www.data.qld.gov.au/api/3/action/datastore_search?resource_id=8b9178e0-2995-42ad-8e55-37c15b4435a3" +
         search
     );
     let data = await (await request).json();
@@ -182,7 +182,11 @@ export default function Album() {
               data.map((card) => (
                 <Grid item key={card._id} xs={12} sm={6} md={4}>
                   <a
-                    href={card.Weblink}
+                    href={
+                      card.Weblink && card.Weblink.indexOf("http") > -1
+                        ? card.Weblink
+                        : "http" + card.Weblink
+                    }
                     target="_blank"
                     style={{ textDecoration: "none" }}
                   >
@@ -207,7 +211,6 @@ export default function Album() {
                         <b>Address</b>{" "}
                         <Box fontStyle="oblique">{card["Address"]}</Box>
                       </CardContent>
-                      <Divider />
                       <div className={classes.root}>
                         {card["Sectors"].split(";").map((c) => (
                           <Chip
@@ -311,49 +314,59 @@ export default function Album() {
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Overview</Box>
-              {dialogData["Overview"]}
+              {dialogData["Overview"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Centre summary</Box>
-              {dialogData["Centre summary"]}
+              {dialogData["Centre summary"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Sectors</Box>
-              {dialogData["Sectors"]}
+              {dialogData["Sectors"] &&
+                dialogData["Sectors"]
+                  .split(";")
+                  .map((c) => (
+                    <Chip
+                      size="small"
+                      color="secondary"
+                      variant="outlined"
+                      label={c}
+                    />
+                  ))}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Strengths and capabilities</Box>
-              {dialogData["Strengths and capabilities"]}
+              {dialogData["Strengths and capabilities"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Facilities and major equipment</Box>
-              {dialogData["Facilities and major equipment"]}
+              {dialogData["Facilities and major equipment"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Research staff</Box>
-              {dialogData["Research staff"]}
+              {dialogData["Research staff"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Organisation type</Box>
-              {dialogData["Organisation type"]}
+              {dialogData["Organisation type"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Primary centre</Box>
-              {dialogData["Primary centre"]}
+              {dialogData["Primary centre"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Address</Box>
-              {dialogData["Address"]}
+              {dialogData["Address"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Latitude and Longitude</Box>
-              {dialogData["Latitude"]}
+              {dialogData["Latitude"] || ""}
               {","}
-              {dialogData["Longitude"]}
+              {dialogData["Longitude"] || ""}
             </Typography>
             <Typography component="div" variant="body1">
               <Box color="warning.main">Centre achievements</Box>
-              {dialogData["Centre achievements"]}
+              {dialogData["Centre achievements"] || ""}
             </Typography>
           </DialogContentText>
         </DialogContent>
