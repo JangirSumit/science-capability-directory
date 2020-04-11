@@ -244,14 +244,14 @@ export default function Album() {
             src="https://jangirsumit.github.io/science-capability-directory/static/media/science%20(3).a0a6971c.png"
             className={classes.rounded}
           ></Avatar>
-          <Typography
+          {/* <Typography
             variant="h6"
             color="inherit"
             noWrap
             className={classes.paddingLeft}
           >
-            Science Directory
-          </Typography>
+            RecourceFinda
+          </Typography> */}
         </Toolbar>
       </AppBar>
       <main>
@@ -265,11 +265,11 @@ export default function Album() {
               color="textPrimary"
               gutterBottom
             >
-              Search and Learn
+              RecourceFinda
             </Typography>
             <TextField
               id="search-text"
-              label="Search test here..."
+              label="Filter & Find"
               variant="outlined"
               className=""
               fullWidth
