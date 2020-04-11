@@ -53,8 +53,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
   },
   cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
   card: {
     height: "100%",
@@ -100,8 +100,12 @@ export default function Album() {
   const [scroll, setScroll] = React.useState("paper");
   const [dialogData, setDialogData] = useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorE2, setAnchorE2] = React.useState(null);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const [selectedSector, setSector] = React.useState("");
+  const [facilities, setFacilities] = useState([]);
+  const [selectedFIndex, setSelectedFIndex] = React.useState(-1);
+  const [selectedFacility, setFacility] = React.useState("");
 
   const handleClickOpen = (scrollType, data) => (event) => {
     setOpen(true);
@@ -121,8 +125,22 @@ export default function Album() {
     setAnchorEl(null);
   };
 
+  const handleFClickListItem = (event) => {
+    setAnchorE2(event.currentTarget);
+  };
+
+  const handleFMenuItemClick = (event, index) => {
+    setSelectedFIndex(index);
+    setFacility(event.currentTarget.innerText);
+    setAnchorE2(null);
+  };
+
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleFMenuClose = () => {
+    setAnchorE2(null);
   };
 
   const handleClose = () => {
@@ -132,6 +150,7 @@ export default function Album() {
   async function fetchData(q) {
     let search = q ? `&q=${q}` : "";
     let sectors = [];
+    let facilities = [];
 
     let request = fetch(
       "https://www.data.qld.gov.au/api/3/action/datastore_search?resource_id=8b9178e0-2995-42ad-8e55-37c15b4435a3" +
@@ -147,10 +166,21 @@ export default function Album() {
     data.result.records.forEach((element) => {
       let ele = element.Sectors.split(";").map((a) => a.trim());
       sectors.push(...ele);
+
+      let f = element["Facilities and major equipment"]
+        .split("\n")
+        .map((a) => a.replace(/-/g, "").trim());
+      facilities.push(...f);
     });
     sectors = sectors.filter((item, index) => {
       return sectors.indexOf(item) === index;
     });
+
+    facilities = facilities.filter((item, index) => {
+      return facilities.indexOf(item) === index;
+    });
+
+    setFacilities(facilities);
     setSectors(sectors);
   }
 
@@ -164,6 +194,18 @@ export default function Album() {
     setData(newData);
   }
 
+  async function fetchFData(q) {
+    setClose(false);
+    setData([]);
+    let data = JSON.parse(localStorage.getItem("data"));
+
+    let newData = data.filter(
+      (d) => d["Facilities and major equipment"].indexOf(q) > -1
+    );
+
+    setData(newData);
+  }
+
   useEffect(() => {
     fetchData(searchQuery);
   }, [searchQuery]);
@@ -171,6 +213,10 @@ export default function Album() {
   useEffect(() => {
     fetchQData(selectedSector);
   }, [selectedSector]);
+
+  useEffect(() => {
+    fetchFData(selectedFacility);
+  }, [selectedFacility]);
 
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
@@ -205,7 +251,7 @@ export default function Album() {
       <main>
         {/* Hero unit */}
         <div className={classes.heroContent}>
-          <Container maxWidth="sm">
+          <Container maxWidth="md">
             <Typography
               component="h1"
               variant="h4"
@@ -223,39 +269,76 @@ export default function Album() {
               fullWidth
               onKeyUp={(e) => setSearchQuery(e.target.value)}
             />
-            <div style={{ marginTop: "5px" }} color="primary">
-              <List component="nav" aria-label="Device settings">
-                <ListItem
-                  button
-                  aria-haspopup="true"
-                  aria-controls="lock-menu"
-                  aria-label="Search by Sectors"
-                  onClick={handleClickListItem}
-                >
-                  <ListItemText
-                    primary="Search by Sectors"
-                    secondary={sectors[selectedIndex]}
-                  />
-                </ListItem>
-              </List>
-              <Menu
-                id="lock-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                {sectors.map((s, index) => (
-                  <MenuItem
-                    selected={index === selectedIndex}
-                    onClick={(event) => handleMenuItemClick(event, index)}
-                    key={s.trim()}
+            <Container className={classes.cardGrid} maxWidth="md">
+              <Grid container spacing={4} key="1">
+                <div style={{ marginTop: "5px" }} color="primary">
+                  <List component="nav" aria-label="Device settings">
+                    <ListItem
+                      button
+                      aria-haspopup="true"
+                      aria-controls="lock-menu"
+                      aria-label="Search by Sectors"
+                      onClick={handleClickListItem}
+                    >
+                      <ListItemText
+                        primary="Search by Sectors"
+                        secondary={sectors[selectedIndex]}
+                      />
+                    </ListItem>
+                  </List>
+                  <Menu
+                    id="lock-menu"
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
                   >
-                    {s.trim()}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </div>
+                    {sectors.map((s, index) => (
+                      <MenuItem
+                        selected={index === selectedIndex}
+                        onClick={(event) => handleMenuItemClick(event, index)}
+                        key={s.trim()}
+                      >
+                        {s.trim()}
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </div>
+                <div style={{ marginTop: "5px" }} color="primary">
+                  <List component="nav" aria-label="Device settings">
+                    <ListItem
+                      button
+                      aria-haspopup="true"
+                      aria-controls="lock-menu"
+                      aria-label="Search by Facilities and Equipments"
+                      onClick={handleFClickListItem}
+                    >
+                      <ListItemText
+                        primary="Search by Facilities and Equipments"
+                        secondary={sectors[selectedFIndex]}
+                      />
+                    </ListItem>
+                  </List>
+                  <Menu
+                    id="lock-menu"
+                    anchorEl={anchorE2}
+                    keepMounted
+                    open={Boolean(anchorE2)}
+                    onClose={handleFMenuClose}
+                  >
+                    {facilities.map((s, index) => (
+                      <MenuItem
+                        selected={index === selectedFIndex}
+                        onClick={(event) => handleFMenuItemClick(event, index)}
+                        key={s.trim()}
+                      >
+                        {s.trim()}
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </div>
+              </Grid>
+            </Container>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
