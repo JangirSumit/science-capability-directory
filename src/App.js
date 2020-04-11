@@ -22,6 +22,11 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import MenuItem from "@material-ui/core/MenuItem";
+import Menu from "@material-ui/core/Menu";
 
 function Copyright() {
   return (
@@ -89,10 +94,15 @@ export default function Album() {
   const classes = useStyles();
   const [data, setData] = useState([]);
   const [open, setClose] = useState(true);
+  const [openBackDrop, setOpenBackDrop] = React.useState(false);
+  const [sectors, setSectors] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpen] = React.useState(false);
   const [scroll, setScroll] = React.useState("paper");
   const [dialogData, setDialogData] = useState({});
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedSector, setSector] = React.useState("");
 
   const handleClickOpen = (scrollType, data) => (event) => {
     setOpen(true);
@@ -102,11 +112,49 @@ export default function Album() {
     setDialogData(data);
   };
 
+  const handleClickListItem = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuItemClick = (event, index) => {
+    setSelectedIndex(index);
+    setSector(event.currentTarget.innerText);
+    setAnchorEl(null);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleClose = () => {
     setOpen(false);
   };
 
   async function fetchData(q) {
+    let search = q ? `&q=${q}` : "";
+    let sectors = [];
+
+    let request = fetch(
+      "https://www.data.qld.gov.au/api/3/action/datastore_search?resource_id=8b9178e0-2995-42ad-8e55-37c15b4435a3" +
+        search
+    );
+    let data = await (await request).json();
+    setData(data.result.records);
+    setClose(false);
+
+    data.result.records.forEach((element) => {
+      let ele = element.Sectors.split(";").map((a) => a.trim());
+      sectors.push(...ele);
+    });
+    sectors = sectors.filter((item, index) => {
+      return sectors.indexOf(item) === index;
+    });
+    setSectors(sectors);
+  }
+
+  async function fetchQData(q) {
+    setData([]);
+    setOpenBackDrop(true);
     let search = q ? `&q=${q}` : "";
 
     let request = fetch(
@@ -116,11 +164,16 @@ export default function Album() {
     let data = await (await request).json();
     setData(data.result.records);
     setClose(false);
+    setOpenBackDrop(false);
   }
 
   useEffect(() => {
     fetchData(searchQuery);
-  }, [searchQuery]);
+  }, [searchQuery, selectedSector]);
+
+  useEffect(() => {
+    fetchQData(selectedSector);
+  }, [selectedSector]);
 
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
@@ -173,6 +226,39 @@ export default function Album() {
               fullWidth
               onKeyUp={(e) => setSearchQuery(e.target.value)}
             />
+            <div style={{ marginTop: "5px" }} color="primary">
+              <List component="nav" aria-label="Device settings">
+                <ListItem
+                  button
+                  aria-haspopup="true"
+                  aria-controls="lock-menu"
+                  aria-label="Search by Sectors"
+                  onClick={handleClickListItem}
+                >
+                  <ListItemText
+                    primary="Search by Sectors"
+                    secondary={sectors[selectedIndex]}
+                  />
+                </ListItem>
+              </List>
+              <Menu
+                id="lock-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                {sectors.map((s, index) => (
+                  <MenuItem
+                    selected={index === selectedIndex}
+                    onClick={(event) => handleMenuItemClick(event, index)}
+                    key={s.trim()}
+                  >
+                    {s.trim()}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </div>
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
@@ -218,6 +304,7 @@ export default function Album() {
                             color="secondary"
                             variant="outlined"
                             label={c}
+                            key={c}
                           />
                         ))}
                       </div>
@@ -236,7 +323,7 @@ export default function Album() {
                 </Grid>
               ))
             ) : (
-              <Backdrop className={classes.backdrop} open={open}>
+              <Backdrop className={classes.backdrop} open={openBackDrop}>
                 <CircularProgress color="inherit" />
               </Backdrop>
             )}
@@ -331,6 +418,7 @@ export default function Album() {
                       color="secondary"
                       variant="outlined"
                       label={c}
+                      key={c}
                     />
                   ))}
             </Typography>
