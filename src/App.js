@@ -189,7 +189,11 @@ export default function Album() {
     setData([]);
     let data = JSON.parse(localStorage.getItem("data"));
 
-    let newData = data.filter((d) => d.Sectors.indexOf(q) > -1);
+    let newData = data.filter(
+      (d) =>
+        d.Sectors.indexOf(selectedSector) > -1 &&
+        d["Facilities and major equipment"].indexOf(selectedFacility) > -1
+    );
 
     setData(newData);
   }
@@ -200,7 +204,9 @@ export default function Album() {
     let data = JSON.parse(localStorage.getItem("data"));
 
     let newData = data.filter(
-      (d) => d["Facilities and major equipment"].indexOf(q) > -1
+      (d) =>
+        d.Sectors.indexOf(selectedSector) > -1 &&
+        d["Facilities and major equipment"].indexOf(selectedFacility) > -1
     );
 
     setData(newData);
@@ -315,7 +321,7 @@ export default function Album() {
                     >
                       <ListItemText
                         primary="Search by Facilities and Equipments"
-                        secondary={sectors[selectedFIndex]}
+                        secondary={facilities[selectedFIndex]}
                       />
                     </ListItem>
                   </List>
