@@ -4,7 +4,6 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -14,9 +13,17 @@ import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
 import TextField from "@material-ui/core/TextField";
 import Avatar from "@material-ui/core/Avatar";
-import IconImage from "./images/icons/science (3).png";
 import Backdrop from "@material-ui/core/Backdrop";
-import { Box, CircularProgress, Divider, Chip } from "@material-ui/core";
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  Chip,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  InputAdornment,
+} from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -27,6 +34,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
+import Mic from "@material-ui/icons/Mic";
+import IconButton from "@material-ui/core/IconButton";
 
 function Copyright() {
   return (
@@ -234,6 +243,8 @@ export default function Album() {
     }
   }, [openModal]);
 
+  function handleClickSpeechSearch(event) {}
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -258,15 +269,6 @@ export default function Album() {
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="md">
-            {/* <Typography
-              component="h1"
-              variant="h4"
-              align="center"
-              color="textPrimary"
-              gutterBottom
-            >
-              RecourceFinda
-            </Typography> */}
             <TextField
               id="search-text"
               label="Filter & Find"
@@ -274,6 +276,19 @@ export default function Album() {
               className=""
               fullWidth
               onKeyUp={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickSpeechSearch}
+                      edge="end"
+                    >
+                      <Mic />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Container className={classes.cardGrid} maxWidth="md">
               <Grid container spacing={4} key="1">
